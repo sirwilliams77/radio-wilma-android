@@ -1,0 +1,1 @@
+Logo stacji (własne lub z katalogu), dodawanie stacji z adresu URL, wyszukiwarka tylko ze sprawdzonymi strumieniami bez HLS, poprawny odczyt tytułów utworów, nowy kafelek na ekranie blokady i układ poziomy.

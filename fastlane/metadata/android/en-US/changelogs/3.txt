@@ -1,0 +1,1 @@
+Station logos (own or from the directory), add a station by URL, search limited to verified non-HLS streams, working song titles, new lock-screen tile and landscape layout.

@@ -1,0 +1,11 @@
+Radio Wilma is a free internet radio player, a companion to the Radio Wilma 4.0 ESP32-S3 radio.
+
+• Radio-style screen: clock and date, weather, station name, artist and song title, vinyl, equalizer, volume. Portrait and landscape.
+• Favourite stations, search in the radio-browser.info directory and adding a station by URL.
+• Station logos: upload your own or download from the directory.
+• Background playback, a lock-screen tile with previous/next station, pause and close buttons.
+• Five colour themes and a sleep timer.
+
+No account, no ads, no data collection. Permissions: internet, notifications and a background playback service.
+
+Free software under the GNU GPL v3. Author: Sir Williams. Code, documentation and website were written with the help of an AI assistant (Claude, Anthropic).

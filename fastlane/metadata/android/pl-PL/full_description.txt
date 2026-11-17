@@ -1,0 +1,11 @@
+Radio Wilma to darmowa aplikacja do słuchania radia internetowego, zrobiona jako towarzysz radia Wilma 4.0 na ESP32-S3.
+
+• Ekran jak w radiu: zegar i data, pogoda, nazwa stacji, wykonawca i tytuł utworu, winyl, equalizer, głośność. Układ pionowy i poziomy.
+• Ulubione stacje, wyszukiwarka w katalogu radio-browser.info i dodawanie stacji z adresu URL.
+• Logo stacji: wgraj własne albo pobierz z katalogu.
+• Gra w tle, kafelek na ekranie blokady z przyciskami poprzedniej i następnej stacji, pauzy i zamknięcia.
+• Pięć motywów kolorystycznych i wyłącznik czasowy.
+
+Bez konta, bez reklam, bez zbierania danych. Wymagane uprawnienia: internet, powiadomienia i usługa odtwarzania w tle.
+
+Program jest wolnym oprogramowaniem na licencji GNU GPL v3. Autor: Sir Williams. Kod, dokumentacja i strona powstały z pomocą asystenta AI (Claude, Anthropic).
