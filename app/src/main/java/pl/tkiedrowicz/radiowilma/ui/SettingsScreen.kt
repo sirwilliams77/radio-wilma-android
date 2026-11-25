@@ -23,7 +23,17 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.size
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.Canvas
+import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
+import androidx.compose.ui.graphics.nativeCanvas
+import androidx.compose.ui.graphics.toArgb
+import kotlin.math.floor
 import androidx.compose.ui.res.painterResource
 import pl.tkiedrowicz.radiowilma.R
 import androidx.compose.material.icons.Icons
@@ -230,11 +240,9 @@ private fun SleepContent(vm: MainViewModel) {
 private fun AboutContent() {
     val p = LocalPalette.current
     Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-        Image(
-            painter = painterResource(R.drawable.logo_radio_wilma),
-            contentDescription = "Radio Wilma",
-            modifier = Modifier.size(110.dp).clip(RoundedCornerShape(20.dp)),
-        )
+        Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+            OrbitLogo()
+        }
         Text("Radio Wilma na Androida", color = TextPrimary, fontSize = 18.sp, fontWeight = FontWeight.Bold)
         Text("Wersja " + BuildConfig.VERSION_NAME, color = p.label, fontSize = 13.sp)
         Text(
@@ -254,5 +262,67 @@ private fun AboutContent() {
         )) {
             Text("• " + line, color = p.label, fontSize = 13.sp)
         }
+    }
+}
+
+@Composable
+private fun OrbitLogo() {
+    val p = LocalPalette.current
+    val phrase = "tkiedrowicz.pl     CHOJNICE     "
+    val progress by rememberInfiniteTransition(label = "orbit").animateFloat(
+        initialValue = 0f,
+        targetValue = 1f,
+        animationSpec = infiniteRepeatable(tween(16000, easing = LinearEasing), RepeatMode.Restart),
+        label = "orbitProgress",
+    )
+    Box(Modifier.size(232.dp), contentAlignment = Alignment.Center) {
+        Canvas(Modifier.fillMaxSize()) {
+            val inset = 22.dp.toPx()
+            val radius = 42.dp.toPx()
+            val rect = android.graphics.RectF(inset, inset, size.width - inset, size.height - inset)
+            val path = android.graphics.Path()
+            path.addRoundRect(rect, radius, radius, android.graphics.Path.Direction.CW)
+            val measure = android.graphics.PathMeasure(path, false)
+            val perimeter = measure.length
+            val paint = android.graphics.Paint(android.graphics.Paint.ANTI_ALIAS_FLAG)
+            paint.color = p.accent.toArgb()
+            paint.textSize = 18.sp.toPx()
+            paint.typeface = android.graphics.Typeface.DEFAULT_BOLD
+            paint.textAlign = android.graphics.Paint.Align.CENTER
+            val phraseWidth = paint.measureText(phrase)
+            val repeats = maxOf(1, floor(perimeter / phraseWidth).toInt())
+            val text = phrase.repeat(repeats)
+            val widths = FloatArray(text.length) { paint.measureText(text[it].toString()) }
+            val total = widths.sum()
+            val k = perimeter / total
+            paint.textScaleX = k
+            val pos = FloatArray(2)
+            val tan = FloatArray(2)
+            var x = 0f
+            drawIntoCanvas { c ->
+                val canvas = c.nativeCanvas
+                for (i in text.indices) {
+                    val w = widths[i] * k
+                    val ch = text[i]
+                    if (ch != ' ') {
+                        var d = (progress * perimeter + x + w / 2f) % perimeter
+                        if (d < 0f) d += perimeter
+                        measure.getPosTan(d, pos, tan)
+                        val angle = Math.toDegrees(Math.atan2(tan[1].toDouble(), tan[0].toDouble())).toFloat()
+                        canvas.save()
+                        canvas.translate(pos[0], pos[1])
+                        canvas.rotate(angle)
+                        canvas.drawText(ch.toString(), 0f, 0f, paint)
+                        canvas.restore()
+                    }
+                    x += w
+                }
+            }
+        }
+        Image(
+            painter = painterResource(R.drawable.logo_radio_wilma),
+            contentDescription = "Radio Wilma",
+            modifier = Modifier.size(160.dp).clip(RoundedCornerShape(28.dp)),
+        )
     }
 }
