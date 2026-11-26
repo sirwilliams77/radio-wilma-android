@@ -2,7 +2,7 @@
 
 Aplikacja radia internetowego na telefon w stylu serii **Radio Wilma 4.0** (ESP32-S3): czarne tło, niebieskie ramki, duży zegar, pogoda, wirujący winyl, equalizer, ulubione stacje, wyszukiwarka w katalogu radio-browser.info i motywy kolorów takie same jak w panelu WWW radia.
 
-Wersja **1.2.0**. Autor: **Sir Williams**. Licencja: **GNU GPL v3** (plik `LICENSE`).
+Wersja **1.2.1**. Autor: **Sir Williams**. Licencja: **GNU GPL v3** (plik `LICENSE`).
 
 > Kod, dokumentacja i makieta powstały z pomocą asystenta AI (Claude, Anthropic); całość została zaprojektowana, przetestowana i jest wydawana przez autora.
 
@@ -19,7 +19,7 @@ Wersja **1.2.0**. Autor: **Sir Williams**. Licencja: **GNU GPL v3** (plik `LICEN
 - **Logo stacji:** dotknij kółka przy stacji, aby wgrać obraz z telefonu albo pobrać logo z katalogu (też hurtowo: „Pobierz brakujące logo”). Logo pojawia się na liście, na ekranie głównym i na kafelku ekranu blokady.
 - **Szukaj:** katalog radio-browser.info (tylko sprawdzone, działające strumienie, bez HLS i playlist, jak w radiu Wilma 4.0), filtry kraju, gatunku i minimalnej jakości; „Graj” albo „Dodaj do ulubionych”.
 - **Wygląd:** pięć motywów (Niebieski, Bursztynowy, Zielony retro, Biało-szary, Czerwony), jak w panelu radia.
-- **Pogoda:** wpisz miejscowość, dane z Open-Meteo, odświeżanie co 20 minut.
+- **Pogoda:** wpisz miejscowość, dane z Open-Meteo, odświeżanie co 20 minut; realistyczne ikony pogody (dzień i noc) wygenerowane z pomocą AI.
 - **Wyłącznik czasowy:** 15, 30, 45, 60, 90 lub 120 minut.
 - **O aplikacji:** duże logo Radio Wilma z napisem autora krążącym wokół niego, wersja i licencje.
 

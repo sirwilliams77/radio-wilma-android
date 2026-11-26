@@ -9,11 +9,20 @@ import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.Image
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
+import pl.tkiedrowicz.radiowilma.R
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.graphicsLayer
+import kotlin.math.PI
+import kotlin.math.sin
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -251,6 +260,120 @@ private fun DrawScope.drawCloud(left: Float, top: Float, w: Float, color: Color)
 
 @Composable
 fun WeatherIcon(code: Int, isDay: Boolean, modifier: Modifier = Modifier) {
+    val res = weatherIconRes(code, isDay)
+    if (res != null) {
+        AnimatedWeatherIcon(res, weatherFx(code, isDay), modifier)
+    } else {
+        DrawnWeatherIcon(code, isDay, modifier)
+    }
+}
+
+private enum class Fx { NONE, SUN, STARS, FOG, RAIN, SNOW, STORM }
+
+private fun weatherFx(code: Int, isDay: Boolean): Fx = when (code) {
+    0 -> if (isDay) Fx.SUN else Fx.STARS
+    45, 48 -> Fx.FOG
+    51, 53, 55, 56, 57, 61, 63, 65, 66, 67, 80, 81, 82 -> Fx.RAIN
+    71, 73, 75, 77, 85, 86 -> Fx.SNOW
+    95, 96, 99 -> Fx.STORM
+    else -> Fx.NONE
+}
+
+// Static icon image plus gentle motion: float and breathing for all, extra effects per weather type.
+@Composable
+private fun AnimatedWeatherIcon(res: Int, fx: Fx, modifier: Modifier) {
+    val t = rememberInfiniteTransition(label = "wx")
+    val bob by t.animateFloat(0f, 1f, infiniteRepeatable(tween(4200, easing = LinearEasing), RepeatMode.Restart), label = "wxBob")
+    val spin by t.animateFloat(0f, 360f, infiniteRepeatable(tween(60000, easing = LinearEasing), RepeatMode.Restart), label = "wxSpin")
+    val fall by t.animateFloat(0f, 1f, infiniteRepeatable(tween(1800, easing = LinearEasing), RepeatMode.Restart), label = "wxFall")
+    val slow by t.animateFloat(0f, 1f, infiniteRepeatable(tween(6000, easing = LinearEasing), RepeatMode.Restart), label = "wxSlow")
+    val twoPi = (2.0 * PI).toFloat()
+    val onePi = PI.toFloat()
+    val s = sin(bob * twoPi)
+    Box(modifier) {
+        Box(Modifier.fillMaxSize().then(if (fx == Fx.SUN) Modifier.clip(CircleShape) else Modifier)) {
+            Image(
+                painter = painterResource(res),
+                contentDescription = null,
+                contentScale = ContentScale.Fit,
+                modifier = Modifier.fillMaxSize().graphicsLayer {
+                    translationY = size.height * 0.035f * s
+                    val k = 1f + 0.02f * s
+                    scaleX = k
+                    scaleY = k
+                    if (fx == Fx.SUN) rotationZ = spin
+                    if (fx == Fx.FOG) alpha = 0.8f + 0.2f * s
+                },
+            )
+        }
+        Canvas(Modifier.fillMaxSize()) {
+            val w = size.width
+            val h = size.height
+            when (fx) {
+                Fx.SUN -> {
+                    val a = 0.10f + 0.08f * s
+                    val c = Offset(w * 0.5f, h * 0.5f)
+                    drawCircle(brush = Brush.radialGradient(listOf(Color(0xFFFFC040).copy(alpha = a), Color.Transparent), center = c, radius = w * 0.5f), radius = w * 0.5f, center = c)
+                }
+                Fx.STARS -> {
+                    val pts = listOf(Offset(0.21f, 0.25f), Offset(0.77f, 0.29f), Offset(0.61f, 0.38f), Offset(0.75f, 0.52f), Offset(0.24f, 0.80f))
+                    for (i in pts.indices) {
+                        val ph = (slow + i * 0.2f) % 1f
+                        val a = sin(ph * twoPi).coerceAtLeast(0f)
+                        val c = Offset(w * pts[i].x, h * pts[i].y)
+                        drawCircle(Color.White.copy(alpha = 0.55f * a), h * 0.016f, c)
+                        drawCircle(Color.White.copy(alpha = 0.12f * a), h * 0.04f, c)
+                    }
+                }
+                Fx.RAIN -> {
+                    for (i in 0 until 5) {
+                        val p = (fall + i * 0.2f) % 1f
+                        val x = w * (0.30f + 0.10f * i)
+                        val y = h * (0.62f + 0.30f * p)
+                        val a = sin(p * onePi)
+                        drawLine(Color(0xFF8CCBFF).copy(alpha = 0.7f * a), Offset(x, y), Offset(x - w * 0.012f, y + h * 0.06f), strokeWidth = h * 0.022f, cap = StrokeCap.Round)
+                    }
+                }
+                Fx.SNOW -> {
+                    for (i in 0 until 6) {
+                        val p = (slow + i * 0.17f) % 1f
+                        val x = w * (0.26f + 0.09f * i) + w * 0.015f * sin((p * 2f + i) * onePi)
+                        val y = h * (0.62f + 0.30f * p)
+                        val a = sin(p * onePi)
+                        drawCircle(Color.White.copy(alpha = 0.8f * a), h * 0.018f, Offset(x, y))
+                    }
+                }
+                Fx.STORM -> {
+                    val a = if (slow in 0.80f..0.84f || slow in 0.88f..0.91f) 0.35f else 0f
+                    if (a > 0f) {
+                        val c = Offset(w * 0.5f, h * 0.68f)
+                        drawCircle(brush = Brush.radialGradient(listOf(Color(0xFFFFE680).copy(alpha = a), Color.Transparent), center = c, radius = w * 0.38f), radius = w * 0.38f, center = c)
+                    }
+                }
+                Fx.FOG, Fx.NONE -> {}
+            }
+        }
+    }
+}
+
+// Maps WMO weather codes (Open-Meteo) to the icon set; null means "use the drawn fallback".
+private fun weatherIconRes(code: Int, isDay: Boolean): Int? = when (code) {
+    0 -> if (isDay) R.drawable.wx_clear_day else R.drawable.wx_clear_night
+    1, 2 -> if (isDay) R.drawable.wx_partly_day else R.drawable.wx_partly_night
+    3 -> R.drawable.wx_overcast
+    45, 48 -> R.drawable.wx_fog
+    51, 53, 55, 61 -> R.drawable.wx_light_rain
+    56, 57, 66, 67 -> R.drawable.wx_sleet
+    63, 65, 82 -> R.drawable.wx_heavy_rain
+    80, 81 -> if (isDay) R.drawable.wx_showers_sun else R.drawable.wx_light_rain
+    71, 73, 75, 77 -> R.drawable.wx_snow
+    85, 86 -> if (isDay) R.drawable.wx_snow_sun else R.drawable.wx_snow
+    95, 96, 99 -> R.drawable.wx_thunder
+    else -> null
+}
+
+@Composable
+private fun DrawnWeatherIcon(code: Int, isDay: Boolean, modifier: Modifier = Modifier) {
     val kind = weatherKind(code)
     Canvas(modifier) {
         val w = size.width

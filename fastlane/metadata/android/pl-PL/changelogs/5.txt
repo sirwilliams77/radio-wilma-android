@@ -1,0 +1,1 @@
+Wersja 1.2.1: nowe, realistyczne ikony pogody (dzien i noc) na ekranie glownym i w ustawieniach.

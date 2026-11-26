@@ -259,6 +259,7 @@ private fun AboutContent() {
             "OkHttp: Apache-2.0",
             "Katalog stacji: radio-browser.info (dane społecznościowe, bez gwarancji; logo i nazwy stacji należą do nadawców)",
             "Dane pogodowe: Open-Meteo.com, CC BY 4.0",
+            "Ikony pogody: wygenerowane z pomocą AI (Gemini, Google)",
         )) {
             Text("• " + line, color = p.label, fontSize = 13.sp)
         }
